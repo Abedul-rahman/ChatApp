@@ -1,5 +1,5 @@
 import 'package:chatapp/Utils/constants.dart';
-import 'package:chatapp/Modules/Chat/chat_binding.dart';
+import 'package:chatapp/Modules/Chat/chat_bindings.dart';
 import 'package:chatapp/Modules/Chat/screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class ChatScreen extends GetView<ChatController> {
   const ChatScreen({super.key});
 
-  @override
+  @override 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 

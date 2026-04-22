@@ -3,15 +3,11 @@ import 'package:chatapp/Core/ChatService/contracts.dart';
 import 'package:chatapp/Core/signalr_service.dart';
 import 'package:chatapp/Utils/helper.dart';
 import 'package:get/get.dart';
-import 'package:signalr_netcore/signalr_client.dart';
 
-class ChatService extends GetxService implements ChatMethods {
-  ChatService() : _signalrService = SignalrService.to;
+class ChatService extends SignalrService  implements ChatMethods {
 
   final List<Function> _disposers = [];
-  final SignalrService _signalrService;
 
-  final connectionState = ConnectionState.Disconnected.obs;
   final currentUsername = ''.obs;
   final activeRoom = Rxn<ChatRoomDto>();
   final rooms = <ChatRoomDto>[].obs;
@@ -33,11 +29,10 @@ class ChatService extends GetxService implements ChatMethods {
     _disposers.add(_onReceiveMessage(_handleIncomingMessage));
     _disposers.add(_onRoomsUpdated(_handleRoomsUpdated));
   }
-
   @override
   Future<ChatSessionDto> connect(String username) async {
-    await _signalrService.connect();
-    final result = await _signalrService.invoke(ChatHubMethods.connect, [
+    await super.start();
+    final result = await super.invoke(ChatHubMethods.connect, [
       username,
     ]);
 
@@ -45,7 +40,6 @@ class ChatService extends GetxService implements ChatMethods {
 
     final session = ChatSessionDtoMapper.fromMap(Helper.asMap(result));
 
-    connectionState.value = ConnectionState.Connected;
     currentUsername.value = session.username;
     rooms.assignAll(session.rooms);
     activeRoom.value = session.activeRoom;
@@ -56,7 +50,7 @@ class ChatService extends GetxService implements ChatMethods {
 
   @override
   Future<ChatJoinResultDto> joinRoom(String roomId) async {
-    final result = await _signalrService.invoke(ChatHubMethods.joinRoom, [
+    final result = await super.invoke(ChatHubMethods.joinRoom, [
       roomId,
     ]);
     if (result == null) throw Exception('Failed to join room.');
@@ -79,7 +73,7 @@ class ChatService extends GetxService implements ChatMethods {
       args.add(description.trim());
     }
 
-    final result = await _signalrService.invoke(
+    final result = await super.invoke(
       ChatHubMethods.createRoom,
       args,
     );
@@ -94,7 +88,7 @@ class ChatService extends GetxService implements ChatMethods {
 
   @override
   Future<void> sendMessage(String content) async {
-    await _signalrService.invoke(ChatHubMethods.sendMessage, [content]);
+    await super.invoke(ChatHubMethods.sendMessage, [content]);
   }
 
   List<ChatMessageDto> _toLocal(List<ChatMessageDto> msgs) {
@@ -109,8 +103,8 @@ class ChatService extends GetxService implements ChatMethods {
       }
     }
 
-    _signalrService.on(ChatHubMethods.receiveMessage, handler);
-    return () => _signalrService.off(ChatHubMethods.receiveMessage, handler);
+    super.on(ChatHubMethods.receiveMessage, handler);
+    return () => super.off(ChatHubMethods.receiveMessage, handler);
   }
 
   Function _onRoomsUpdated(void Function(List<ChatRoomDto> rooms) callback) {
@@ -133,20 +127,18 @@ class ChatService extends GetxService implements ChatMethods {
       callback(const <ChatRoomDto>[]);
     }
 
-    _signalrService.on(ChatHubMethods.roomsUpdated, handler);
-    return () => _signalrService.off(ChatHubMethods.roomsUpdated, handler);
+    super.on(ChatHubMethods.roomsUpdated, handler);
+    return () => super.off(ChatHubMethods.roomsUpdated, handler);
   }
 
 
+  //set up connection state handlers (reconnecting, reconnected, closed)
   void _wireConnectionState() {
-    _signalrService.onReconnecting((_) {
-      connectionState.value = ConnectionState.Connecting;
+    onReconnecting((_) {
     });
-    _signalrService.onReconnected((_) {
-      connectionState.value = ConnectionState.Connected;
+    onReconnected((_) {
     });
-    _signalrService.onConnectionClose((_) {
-      connectionState.value = ConnectionState.Disconnected;
+    onConnectionClose((_) {
     });
   }
 
@@ -165,10 +157,10 @@ class ChatService extends GetxService implements ChatMethods {
   }
 
   @override
-  void onClose() {
+  Future onClose() async {
     for (final dispose in _disposers) {
       dispose();
     }
-    super.onClose();
+    await super.onClose();
   }
 }

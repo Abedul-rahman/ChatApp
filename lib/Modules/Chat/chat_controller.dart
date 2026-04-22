@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:chatapp/Core/ChatService/chat_service.dart' ;
 import 'package:chatapp/Core/ChatService/contracts.dart';
@@ -7,6 +8,7 @@ import 'package:signalr_netcore/signalr_client.dart' as signalr;
 
 class ChatController extends GetxController {
   final _chat = ChatService.to;
+  StreamSubscription<signalr.HubConnectionState>? _connectionStateSubscription;
 
   final usernameController = TextEditingController();
   final roomNameController = TextEditingController();
@@ -17,13 +19,15 @@ class ChatController extends GetxController {
   Rxn<ChatRoomDto> get activeRoom => _chat.activeRoom;
   RxString get currentUsername => _chat.currentUsername;
   ChatRoomDto? get generalRoom => _chat.generalRoom;
-  bool get isConnected => _chat.connectionState.value == signalr.ConnectionState.Connected;
+  bool get isConnected =>
+      _chat.connectionState == signalr.HubConnectionState.Connected;
   bool isBusy = false;
   final isCompactRoomsView = true.obs;
   final statusText = 'Choose a username to enter chat.'.obs;
 
-  // Read directly from service — no copies
-  signalr.ConnectionState get  connectionState => _chat.connectionState.value;
+  signalr.HubConnectionState? get connectionState => _chat.connectionState;
+  Stream<signalr.HubConnectionState> get connectionStateStream =>
+      _chat.connectionStateStream;
 
   bool get canSend =>
       isConnected&&
@@ -37,24 +41,9 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     messageController.addListener(_refreshUi);
-
-    // React to service connection state changes for status text only
-    ever(_chat.connectionState, _onConnectionStateChanged);
-  }
-
-  void _onConnectionStateChanged(signalr.ConnectionState state) {
-    switch (state) {
-      case signalr.ConnectionState.Connecting:
-        _setStatus('Reconnecting to chat server...');
-      case signalr.ConnectionState.Connected:
-        final username = _chat.currentUsername.value;
-        _setStatus(username.isEmpty ? 'Reconnected.' : 'Connected as $username');
-      case signalr.ConnectionState.Disconnected:
-        _setStatus('Connection closed.');
-      default:
-        break;
-    }
-    _refreshUi();
+    _connectionStateSubscription = connectionStateStream.listen(
+      _onConnectionStateChanged,
+    );
   }
 
   Future<void> connectUser() async {
@@ -132,10 +121,26 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    _connectionStateSubscription?.cancel();
     usernameController.dispose();
     roomNameController.dispose();
     roomDescriptionController.dispose();
     messageController.dispose();
     super.onClose();
+  }
+
+  void _onConnectionStateChanged(signalr.HubConnectionState state) {
+    switch (state) {
+      case signalr.HubConnectionState.Connecting:
+      case signalr.HubConnectionState.Reconnecting:
+        _setStatus('Reconnecting to chat server...');
+      case signalr.HubConnectionState.Connected:
+        final username = _chat.currentUsername.value;
+        _setStatus(username.isEmpty ? 'Reconnected.' : 'Connected as $username');
+      case signalr.HubConnectionState.Disconnected:
+        _setStatus('Connection closed.');
+      default:
+        _refreshUi();
+    }
   }
 }

@@ -1,16 +1,17 @@
 import 'package:chatapp/Utils/constants.dart';
 import 'package:chatapp/Utils/url_builder.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
-class SignalrService extends GetxService {
+abstract class SignalrService extends GetxService {
   static SignalrService get to => Get.find<SignalrService>();
-
   late final HubConnection _connection;
   final Map<String, List<MethodInvocationFunc>> _eventHandlers = {};
 
-
   HubConnectionState? get connectionState => _connection.state;
+  Stream<HubConnectionState> get connectionStateStream =>
+      _connection.stateStream;
 
   bool get isConnected => connectionState == HubConnectionState.Connected;
   @override
@@ -34,7 +35,8 @@ class SignalrService extends GetxService {
         Constants.defaultSignalrKeepAliveInterval.inMilliseconds;
   }
 
-  Future<void> connect() async {
+  @protected
+  Future<void> start() async {
     if (isConnected || connectionState == HubConnectionState.Connecting) {
       return;
     }
@@ -42,7 +44,8 @@ class SignalrService extends GetxService {
     await _connection.start();
   }
 
-  Future<void> disconnect() async {
+  @protected
+  Future<void> stop() async {
     if (connectionState == HubConnectionState.Disconnected) {
       return;
     }
@@ -50,18 +53,22 @@ class SignalrService extends GetxService {
     await _connection.stop();
   }
 
+  @protected
   void onReconnecting(void Function(Exception? error) callback) {
     _connection.onreconnecting(({error}) => callback(error));
   }
 
+  @protected
   void onReconnected(void Function(String? connectionId) callback) {
     _connection.onreconnected(({connectionId}) => callback(connectionId));
   }
 
+  @protected
   void onConnectionClose(void Function(Exception? error) callback) {
     _connection.onclose(({error}) => callback(error));
   }
 
+  @protected
   void on(String methodName, MethodInvocationFunc handler) {
     _eventHandlers
         .putIfAbsent(methodName, () => <MethodInvocationFunc>[])
@@ -69,6 +76,7 @@ class SignalrService extends GetxService {
     _connection.on(methodName, handler);
   }
 
+  @protected
   Future<Object?> invoke(String methodName, List<Object>? args) async {
     if (!isConnected) {
       throw Exception('Not connected to the server.');
@@ -77,6 +85,7 @@ class SignalrService extends GetxService {
     return _connection.invoke(methodName, args: args);
   }
 
+  @protected
   void off(String methodName, MethodInvocationFunc? handler) {
     _eventHandlers[methodName]?.remove(handler);
     _connection.off(methodName, method: handler);
@@ -84,7 +93,7 @@ class SignalrService extends GetxService {
 
   @override
   Future<void> onClose() async {
-    await disconnect();
+    await stop();
     super.onClose();
   }
 }

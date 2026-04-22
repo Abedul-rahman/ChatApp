@@ -22,11 +22,12 @@ class UrlBuilder {
   static String get baseUrl => _origin(baseUri);
 
   static String getChatHubUrl() {
-    return _resolve('/chathub');
+    return '${baseUri.toString()}/chathub';
   }
 
   static String _resolve(String path) {
-    return baseUri.resolve(path).toString();
+    return   baseUri.resolve(path).toString();
+
   }
 
   static String _origin(Uri uri) {

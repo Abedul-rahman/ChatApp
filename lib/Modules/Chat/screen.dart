@@ -38,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFECE5DD),
       body: SafeArea(
+      
         child: GetBuilder<ChatController>(
           builder: (_) {
             return Column(
@@ -751,7 +752,10 @@ class _ChatConversation extends StatelessWidget {
           ),
         ),
         Container(
-          color: const Color(0xFFF0F2F5),
+          decoration:  BoxDecoration(
+            color: const Color(0xFFF0F2F5),
+            borderRadius: BorderRadius.circular(15)
+          ),
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
           child: Row(
             children: <Widget>[

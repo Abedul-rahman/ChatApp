@@ -3,11 +3,11 @@ class Constants {
   static const String appName = 'Chat App';
   static const String serverBaseUrl = String.fromEnvironment(
     'CHAT_SERVER_BASE_URL',
-    defaultValue: 'https://bzqb0tmr-5017.euw.devtunnels.ms',
+    defaultValue: 'https://evventa.epyasolutions.com/Chatting.rest',
   );
   static const String serverScheme = String.fromEnvironment(
     'CHAT_SERVER_SCHEME',
-    defaultValue: 'http',
+    defaultValue: 'https',
   );
   static const String serverHostOverride = String.fromEnvironment(
     'CHAT_SERVER_HOST',
