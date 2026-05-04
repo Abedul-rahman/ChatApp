@@ -25,11 +25,6 @@ class UrlBuilder {
     return '${baseUri.toString()}/chathub';
   }
 
-  static String _resolve(String path) {
-    return   baseUri.resolve(path).toString();
-
-  }
-
   static String _origin(Uri uri) {
     final normalizedHost = _normalizeHost(uri.host);
     final origin = uri

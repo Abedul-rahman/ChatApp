@@ -1,4 +1,4 @@
-import 'package:chatapp/Core/ChatService/contracts.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/contracts.dart';
 import 'package:chatapp/Modules/Chat/chat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -716,8 +716,8 @@ class _ChatConversation extends StatelessWidget {
               ),
               if (isCompact)
                 IconButton(
-                  onPressed: controller.showCompactRooms,
-                  icon: const Icon(Icons.forum_outlined),
+                  onPressed: controller.showMap,
+                  icon: const Icon(Icons.map),
                   color: const Color(0xFF075E54),
                 ),
             ],

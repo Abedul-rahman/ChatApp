@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:chatapp/Core/ChatService/chat_service.dart' ;
-import 'package:chatapp/Core/ChatService/contracts.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/chat_service.dart' ;
+import 'package:chatapp/Core/Hubs/ChatHub/contracts.dart';
 import 'package:flutter/widgets.dart' ;
 import 'package:get/get.dart';
 import 'package:signalr_netcore/signalr_client.dart' as signalr;
@@ -117,6 +117,7 @@ class ChatController extends GetxController {
   void _setStatus(String value) { statusText.value = value; _refreshUi(); }
   void showCompactRooms() { isCompactRoomsView.value = true; _refreshUi(); }
   void showCompactChat() { isCompactRoomsView.value = false; _refreshUi(); }
+  void showMap(){}
   void _refreshUi() => update();
 
   @override

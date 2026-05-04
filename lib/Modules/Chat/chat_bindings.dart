@@ -1,4 +1,4 @@
-import 'package:chatapp/Core/ChatService/chat_service.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/chat_service.dart';
 import 'package:chatapp/Modules/Chat/chat_controller.dart';
 import 'package:get/get.dart';
 

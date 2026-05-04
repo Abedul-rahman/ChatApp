@@ -1,4 +1,4 @@
-import 'package:chatapp/Core/ChatService/contracts.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/contracts.dart';
 import 'package:chatapp/Modules/Chat/chat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

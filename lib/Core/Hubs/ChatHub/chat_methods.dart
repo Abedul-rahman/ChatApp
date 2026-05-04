@@ -1,4 +1,4 @@
-import 'package:chatapp/Core/ChatService/contracts.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/contracts.dart';
 
 abstract class ChatMethods {
   Future<ChatSessionDto> connect(String username);

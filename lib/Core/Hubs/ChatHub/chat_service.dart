@@ -1,6 +1,6 @@
-import 'package:chatapp/Core/ChatService/chat_methods.dart';
-import 'package:chatapp/Core/ChatService/contracts.dart';
-import 'package:chatapp/Core/signalr_service.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/chat_methods.dart';
+import 'package:chatapp/Core/Hubs/ChatHub/contracts.dart';
+import 'package:chatapp/Core/Hubs/signalr_service.dart';
 import 'package:chatapp/Utils/helper.dart';
 import 'package:get/get.dart';
 
